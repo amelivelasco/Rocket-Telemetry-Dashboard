@@ -5,6 +5,10 @@
 /.pnp
 .pnp.js
 
+#virtual environment
+venv/
+.venv/
+
 # testing
 /coverage
 
