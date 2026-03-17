@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'telemetry',
     'rest_framework',
     'corsheaders',
+    "channels",
 ]
 
 MIDDLEWARE = [
@@ -58,6 +60,14 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ]
 
+}
+
+ASGI_APPLICATION = "RocketTelemetry.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
 }
 
 CORS_ORIGIN_ALLOW_ALL = True

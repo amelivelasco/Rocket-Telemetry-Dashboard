@@ -1,6 +1,6 @@
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -9,15 +9,21 @@ import {
 
 function TelemetryChart({ data, title, dataKey }) {
   return (
-    <div style={{ marginBottom: "2rem" }}>
+    <div style={{ marginBottom: "2rem" }} >
       <h2>{title}</h2>
-      <LineChart width={900} height={300} data={data}>
+      <AreaChart width={900} height={300} data={data}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="timeLabel" />
         <YAxis />
         <Tooltip />
-        <Line type="monotone" dataKey={dataKey} dot={false} />
-      </LineChart>
+        <Area
+          type="monotone"
+          dataKey={dataKey}
+          stroke="#8884d8"
+          fill="#8884d8"
+          fillOpacity={0.25}
+        />
+      </AreaChart>
     </div>
   );
 }
