@@ -6,7 +6,7 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
-import CustomTooltip from "./customTooltip";
+import CustomTooltip from "../customTooltip/customTooltip";
 import "./telemetryChart.css";
 
 function TelemetryChart({ data, title, dataKey }) {
