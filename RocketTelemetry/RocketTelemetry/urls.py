@@ -16,7 +16,9 @@ Including another URLconf
 """
 from django.urls import path
 from telemetry.views import TelemetryListView
+from telemetry.radioViews import RadioConfigListView
 
 urlpatterns = [
     path("api/telemetry/", TelemetryListView.as_view(), name="telemetry-list"),
+    path("api/radio/", RadioConfigListView.as_view(), name="radio-list")
 ]
