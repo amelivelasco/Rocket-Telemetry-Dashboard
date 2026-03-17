@@ -1,6 +1,7 @@
 import TelemetryChart from "./components/telemetryChart";
 import useTelemetrySocket from "./useTelemetrySocket";
 import TelemetrySummaryCards from "./components/telemetrySummaryCards";
+import "./App.css"
 
 function App() {
   const { data: telemetryData, sendMessage } = useTelemetrySocket(
@@ -20,36 +21,38 @@ function App() {
   };
 
   return (
-    <div>
-      <h1>Rocket Telemetry Dashboard</h1>
+    <div className="main-container">
+      <div className="App">
+        <h1>Rocket Telemetry Dashboard</h1>
 
-      <button onClick={sendTestTelemetry}>Send test data</button>
+        <button className="send-data" onClick={sendTestTelemetry}>Send test data</button>
 
-      <TelemetrySummaryCards latest={latest} />
+        <TelemetrySummaryCards latest={latest} />
 
-      <TelemetryChart
-        data={telemetryData}
-        title="Altitude"
-        dataKey="altitude"
-      />
-
-      <TelemetryChart
-        data={telemetryData}
-        title="Velocity"
-        dataKey="velocity"
-      />
-
-      <TelemetryChart
-        data={telemetryData}
-        title="Temperature"
-        dataKey="temperature"
-      />
-
-      <TelemetryChart
-        data={telemetryData}
-        title="Battery Voltage"
-        dataKey="battery_voltage"
+        <TelemetryChart
+          data={telemetryData}
+          title="Altitude"
+          dataKey="altitude"
         />
+
+        <TelemetryChart
+          data={telemetryData}
+          title="Velocity"
+          dataKey="velocity"
+        />
+
+        <TelemetryChart
+          data={telemetryData}
+          title="Temperature"
+          dataKey="temperature"
+        />
+
+        <TelemetryChart
+          data={telemetryData}
+          title="Battery Voltage"
+          dataKey="battery_voltage"
+          />
+      </div>
     </div>
   );
 }
