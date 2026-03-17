@@ -1,70 +1,76 @@
 import { useState, useEffect } from "react";
 import "./radioBoard.css";
-import RadioCard from "../../components/radioCard/radioCard"
+import RadioCard from "../../components/radioCard/radioCard";
 import useRadioSocket from "../../sockets/radio/useRadioSocket";
 
 function validate(radios) {
   const ids = radios.map(r => r.idVal);
   return radios.map(r => ({
     ...r,
-    errors: ids.filter(id => id === r.idVal).length > 1
-      ? ["Same ID used twice"]
-      : [],
+    errors: ids.filter(id => id === r.idVal).length > 1 ? ["Same ID used twice"] : [],
   }));
 }
 
 let nextId = 4;
 
 const DEFAULT_RADIOS = validate([
-  { uid: 1, status: "online",  idVal: "0x01", p1: "433", p2: "9600",  p3: "10", saved: false },
-  { uid: 2, status: "syncing", idVal: "0x01", p1: "433", p2: "19200", p3: "5", saved: false  },
-  { uid: 3, status: "offline", idVal: "0x03", p1: "868", p2: "9600",  p3: "10", saved: false },
+  {
+    uid: 1, status: "online", idVal: "0x01", saved: false,
+    pins: [
+      { key: "frequency", label: "Frequency", unit: "MHz", value: "433" },
+      { key: "baudRate",  label: "Baud rate", unit: "bps", value: "9600" },
+      { key: "txPower",   label: "TX power",  unit: "dBm", value: "10" },
+    ],
+  },
+  {
+    uid: 2, status: "syncing", idVal: "0x01", saved: false,
+    pins: [
+      { key: "frequency", label: "Frequency", unit: "MHz", value: "433" },
+      { key: "baudRate",  label: "Baud rate", unit: "bps", value: "19200" },
+      { key: "txPower",   label: "TX power",  unit: "dBm", value: "5" },
+      { key: "channel",   label: "Channel",   unit: "",    value: "3" },
+    ],
+  },
+  {
+    uid: 3, status: "offline", idVal: "0x03", saved: false,
+    pins: [
+      { key: "frequency", label: "Frequency", unit: "MHz", value: "868" },
+      { key: "baudRate",  label: "Baud rate", unit: "bps", value: "9600" },
+      { key: "txPower",   label: "TX power",  unit: "dBm", value: "10" },
+    ],
+  },
 ]);
 
 function RadioBoard() {
-
   const [radios, setRadios] = useState(DEFAULT_RADIOS);
   const { lastUpdated, sendConfig, isConnected, lastReceived } = useRadioSocket("ws://127.0.0.1:8001/ws/radio/");
 
-  // Sync received data from backend with local radios
   useEffect(() => {
     if (lastReceived && Array.isArray(lastReceived)) {
-      console.log("Syncing received radios:", lastReceived);
-      setRadios(prevRadios => {
-        const updated = prevRadios.map(radio => {
-          // Find matching radio in received data
-          const receivedRadio = lastReceived.find(r => r.uid === radio.uid);
-          if (receivedRadio) {
-            return {
-              ...radio,
-              ...receivedRadio,
-              saved: true, // Mark as saved after confirmation from backend
-            };
-          }
-          return radio;
-        });
-        return validate(updated);
-      });
+      setRadios(prev => validate(prev.map(radio => {
+        const match = lastReceived.find(r => r.uid === radio.uid);
+        return match ? { ...radio, ...match, saved: true } : radio;
+      })));
     }
   }, [lastReceived]);
 
   const sendRandomValues = () => {
     const payload = radios.map(r => ({
       ...r,
-      p1: (400 + Math.floor(Math.random() * 500)).toString(),
-      p2: [9600, 19200, 38400][Math.floor(Math.random() * 3)].toString(),
-      p3: Math.floor(Math.random() * 20).toString(),
-      saved: false, // Mark as unsaved while sending
+      pins: r.pins.map(pin => ({
+        ...pin,
+        value: (Math.floor(Math.random() * 900) + 100).toString(),
+      })),
+      saved: false,
     }));
-    setRadios(prevRadios => validate(prevRadios.map((r, i) => ({ ...r, ...payload[i] }))));
+    setRadios(validate(payload));
     sendConfig(payload);
   };
 
   const handleChange = (i, key, value) => {
-    const updated = radios.map((r, idx) => 
-      idx === i ? { ...r, [key]: value, saved: false } : r
-    );
-    setRadios(validate(updated));
+    setRadios(r => validate(r.map((radio, idx) =>
+      idx === i ? { ...radio, [key]: value, saved: false } : radio
+    )));
   };
 
   const handleLoad = (i) => {
@@ -81,10 +87,33 @@ function RadioBoard() {
   const handleAdd = () => {
     const uid = nextId++;
     setRadios(r => validate([...r, {
-      uid, status: "offline",
-      idVal: `0x0${uid}`, p1: "433", p2: "9600", p3: "10",
-      saved: false,
+      uid, status: "offline", idVal: `0x0${uid}`, saved: false,
+      pins: [
+        { key: "frequency", label: "Frequency", unit: "MHz", value: "433" },
+        { key: "baudRate",  label: "Baud rate", unit: "bps", value: "9600" },
+      ],
     }]));
+  };
+
+  const handlePinChange = (radioIdx, pinIdx, field, value) => {
+    setRadios(r => r.map((radio, i) => i !== radioIdx ? radio : {
+      ...radio,
+      pins: radio.pins.map((pin, j) => j !== pinIdx ? pin : { ...pin, [field]: value }),
+    }));
+  };
+
+  const handleAddPin = (radioIdx) => {
+    setRadios(r => r.map((radio, i) => i !== radioIdx ? radio : {
+      ...radio,
+      pins: [...radio.pins, { key: `pin${Date.now()}`, label: "New pin", unit: "", value: "" }],
+    }));
+  };
+
+  const handleRemovePin = (radioIdx, pinIdx) => {
+    setRadios(r => r.map((radio, i) => i !== radioIdx ? radio : {
+      ...radio,
+      pins: radio.pins.filter((_, j) => j !== pinIdx),
+    }));
   };
 
   return (
@@ -95,53 +124,23 @@ function RadioBoard() {
         <button className="btn">Load radio config</button>
         <button className="btn">Download config</button>
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <div 
-            style={{ 
-              width: "12px", 
-              height: "12px", 
-              borderRadius: "50%",
-              backgroundColor: isConnected ? "#4be34b" : "#ff6b6b"
-            }} 
-          />
-          <span style={{ fontSize: "12px", color: "#888" }}>
-            {isConnected ? "Connected" : "Disconnected"}
-          </span>
+          <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: isConnected ? "#4be34b" : "#ff6b6b" }} />
+          <span style={{ fontSize: "12px", color: "#888" }}>{isConnected ? "Connected" : "Disconnected"}</span>
         </div>
-        {lastUpdated && (
-          <span style={{ fontSize: "12px", color: "#888" }}>
-            Last updated: {lastUpdated}
-          </span>
-        )}
+        {lastUpdated && <span style={{ fontSize: "12px", color: "#888" }}>Last updated: {lastUpdated}</span>}
       </div>
       <div className="cards-wrap">
         {radios.map((r, i) => (
           <div key={r.uid} style={{ position: "relative" }}>
             {r.saved && (
-              <div 
-                style={{
-                  position: "absolute",
-                  top: "-8px",
-                  right: "-8px",
-                  backgroundColor: "#4be34b",
-                  color: "white",
-                  borderRadius: "50%",
-                  width: "24px",
-                  height: "24px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  zIndex: 10,
-                }}
-              >
-                ✓
-              </div>
+              <div style={{ position: "absolute", top: "-8px", right: "-8px", backgroundColor: "#4be34b", color: "white", borderRadius: "50%", width: "24px", height: "24px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "bold", zIndex: 10 }}>✓</div>
             )}
             <RadioCard
-              radio={r}
-              index={i}
+              radio={r} index={i}
               onChange={handleChange}
+              onPinChange={handlePinChange}
+              onAddPin={handleAddPin}
+              onRemovePin={handleRemovePin}
               onLoad={handleLoad}
               onRemove={handleRemove}
             />
