@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/navBar/navBar";
 import Dashboard from "./pages/dashboard/dashboard";
-import RadioBoard from "./pages/radioBoard/radioBoard";
+import RadioBoard from "./pages/radioConfig/radioConfig";
 
 function App() {
   return (

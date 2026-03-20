@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import "./radioBoard.css";
+import "./radioConfig.css";
 import RadioCard from "../../components/radioCard/radioCard";
 import useRadioSocket from "../../sockets/radio/useRadioSocket";
-import { validate } from "./radioUtils";
 
 // Default radio configurations based on backend packet schemas
 const DEFAULT_RADIOS = [
