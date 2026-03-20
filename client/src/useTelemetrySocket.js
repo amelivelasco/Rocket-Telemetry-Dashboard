@@ -2,11 +2,13 @@ import { useEffect, useRef, useState, useCallback } from "react";
 
 export default function useTelemetrySocket(url) {
   const [data, setData] = useState([]);
+  const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef(null);
 
   useEffect(() => {
     console.log("Trying to connect to:", url);
 
+    let closed = false;
     const socket = new WebSocket(url);
     socketRef.current = socket;
 
@@ -21,8 +23,10 @@ export default function useTelemetrySocket(url) {
     };
 
     socket.onclose = (event) => {
-      console.log("WebSocket disconnected", event);
-    };
+      if (closed) return;
+        console.log("WebSocket disconnected", event);
+        setIsConnected(false);
+      };
 
     socket.onerror = (error) => {
       console.error("WebSocket error:", error);

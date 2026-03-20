@@ -1,6 +1,6 @@
 from rest_framework.generics import ListAPIView
-from .models import RadioConfig
-from .radioSerializer import RadioConfigSerializer
+from ..models import RadioConfig
+from ..serializers.radioSerializer import RadioConfigSerializer
 
 class RadioConfigListView(ListAPIView):
     serializer_class = RadioConfigSerializer

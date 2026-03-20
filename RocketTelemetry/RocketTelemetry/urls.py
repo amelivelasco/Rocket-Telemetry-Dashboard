@@ -15,8 +15,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
-from telemetry.views import TelemetryListView
-from telemetry.radioViews import RadioConfigListView
+from telemetry.views.telemetryViews import TelemetryListView
+from telemetry.views.radioViews import RadioConfigListView
 
 urlpatterns = [
     path("api/telemetry/", TelemetryListView.as_view(), name="telemetry-list"),

@@ -1,6 +1,6 @@
 from rest_framework.generics import ListAPIView
-from .models import Telemetry
-from .serializer import TelemetrySerializer
+from ..models import Telemetry
+from ..serializers.telemetrySerializer import TelemetrySerializer
 
 class TelemetryListView(ListAPIView):
     serializer_class = TelemetrySerializer

@@ -1,6 +1,6 @@
 from django.urls import re_path
-from telemetry.consumers import TelemetryConsumer
-from telemetry.radioConsumer import RadioConsumer
+from telemetry.consumers.telemetryConsumer import TelemetryConsumer
+from telemetry.consumers.radioConsumer import RadioConsumer
 
 websocket_urlpatterns = [
     re_path(r"^ws/telemetry/$", TelemetryConsumer.as_asgi()),

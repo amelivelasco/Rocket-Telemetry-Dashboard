@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import RadioConfig
+from ..models import RadioConfig
 
 class RadioConfigSerializer(serializers.ModelSerializer):
     class Meta:
