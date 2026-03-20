@@ -2,48 +2,12 @@ import { useState, useEffect } from "react";
 import "./radioConfig.css";
 import RadioCard from "../../components/radioCard/radioCard";
 import useRadioSocket from "../../sockets/radio/useRadioSocket";
-
-// Default radio configurations based on backend packet schemas
-const DEFAULT_RADIOS = [
-  {
-    uid: 1,
-    idVal: "0x01",
-    status: "waiting",
-    pins: [
-      { key: "altitude", label: "Altitude", unit: "m", value: "0.0", type: "FLOAT" },
-      { key: "velocity", label: "Velocity", unit: "m/s", value: "0.0", type: "FLOAT" },
-      { key: "temperature", label: "Temperature", unit: "°C", value: "0", type: "SHORT" },
-      { key: "battery_voltage", label: "Battery Voltage", unit: "V", value: "0.0", type: "FLOAT" },
-      { key: "status_code", label: "Status Code", unit: "", value: "0", type: "BYTE" },
-    ],
-  },
-  {
-    uid: 2,
-    idVal: "0x02",
-    status: "waiting",
-    pins: [
-      { key: "frequency", label: "Frequency", unit: "MHz", value: "0.0", type: "FLOAT" },
-      { key: "baud_rate", label: "Baud Rate", unit: "bps", value: "0", type: "UNSIGNED_INT" },
-      { key: "tx_power", label: "TX Power", unit: "dBm", value: "0.0", type: "FLOAT" },
-      { key: "channel", label: "Channel", unit: "", value: "0", type: "UNSIGNED_SHORT" },
-    ],
-  },
-  {
-    uid: 3,
-    idVal: "0x03",
-    status: "waiting",
-    pins: [
-      { key: "pressure", label: "Pressure", unit: "hPa", value: "0.0", type: "FLOAT" },
-      { key: "humidity", label: "Humidity", unit: "%", value: "0", type: "UNSIGNED_SHORT" },
-      { key: "mission_name", label: "Mission Name", unit: "", value: "", type: "STRING(10)" },
-    ],
-  },
-];
+import { validate, DEFAULT_RADIOS, downloadConfig, loadConfig } from "./radioUtils";
 
 function RadioBoard() {
   const [radios, setRadios] = useState(DEFAULT_RADIOS);
   const { lastUpdated, isConnected, lastReceived } = useRadioSocket("ws://127.0.0.1:8001/ws/radio/");
-
+  let nextId = DEFAULT_RADIOS.length + 1;
   useEffect(() => {
     if (lastReceived && Array.isArray(lastReceived)) {
       console.log("RadioBoard received backend data", lastReceived);
@@ -66,8 +30,10 @@ function RadioBoard() {
   return (
     <div className="radio-page">
       <div className="topbar">
-        <h2>Radio Telemetry Data</h2>
+        <h2>Radio Config</h2>
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            <button className="btn" onClick={() => loadConfig(loaded => { nextId = Math.max(...loaded.map(r => r.uid)) + 1; setRadios(validate(loaded)); })}>Load radio config</button>
+            <button className="btn" onClick={() => downloadConfig(radios)}>Download config</button>
           <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: isConnected ? "#4be34b" : "#ff6b6b" }} />
           <span style={{ fontSize: "12px", color: "#888" }}>{isConnected ? "Connected" : "Disconnected"}</span>
         </div>

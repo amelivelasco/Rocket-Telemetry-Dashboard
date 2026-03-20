@@ -4,6 +4,8 @@ from datetime import datetime
 from channels.generic.websocket import AsyncWebsocketConsumer
 from ..simulators.packetSimulator import generate_fake_packet, packet_to_hex
 from ..schemas.packetSchema import decode_packet, PACKET_SCHEMA
+from ..simulators.sharedState import latest_packets
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -36,6 +38,7 @@ class RadioConsumer(AsyncWebsocketConsumer):
             for radio_id in PACKET_SCHEMA:
                 # Simulate receiving hex data
                 raw_packet = generate_fake_packet(radio_id)
+                latest_packets[radio_id] = raw_packet
                 hex_data = packet_to_hex(raw_packet)
                 
                 # Decode the packet

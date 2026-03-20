@@ -46,28 +46,41 @@ export const validate = (radios) => {
 
 export const DEFAULT_RADIOS = validate([
   {
-    uid: 1, status: "online", idVal: "0x01", saved: false,
+    uid: 1,
+    idVal: "0x01",
+    status: "waiting",
     pins: [
-      { key: "frequency", label: "Frequency", unit: "MHz", value: "433" },
-      { key: "baudRate",  label: "Baud rate", unit: "bps", value: "9600" },
-      { key: "txPower",   label: "TX power",  unit: "dBm", value: "10" },
+      { key: "altitude", label: "Altitude", unit: "m", value: "0.0", type: "FLOAT" },
+      { key: "velocity", label: "Velocity", unit: "m/s", value: "0.0", type: "FLOAT" },
+      { key: "temperature", label: "Temperature", unit: "°C", value: "0", type: "SHORT" },
+      { key: "battery_voltage", label: "Battery Voltage", unit: "V", value: "0.0", type: "FLOAT" },
+      { key: "status_code", label: "Status Code", unit: "", value: "0", type: "BYTE" },
     ],
   },
   {
-    uid: 2, status: "syncing", idVal: "0x01", saved: false,
+    uid: 2,
+    idVal: "0x02",
+    status: "waiting",
     pins: [
-      { key: "frequency", label: "Frequency", unit: "MHz", value: "433" },
-      { key: "baudRate",  label: "Baud rate", unit: "bps", value: "19200" },
-      { key: "txPower",   label: "TX power",  unit: "dBm", value: "5" },
-      { key: "channel",   label: "Channel",   unit: "",    value: "3" },
+      { key: "frequency", label: "Frequency", unit: "MHz", value: "0.0", type: "FLOAT" },
+      { key: "baud_rate", label: "Baud Rate", unit: "bps", value: "0", type: "UNSIGNED_INT" },
+      { key: "tx_power", label: "TX Power", unit: "dBm", value: "0.0", type: "FLOAT" },
+      { key: "channel", label: "Channel", unit: "", value: "0", type: "UNSIGNED_SHORT" },
     ],
   },
   {
-    uid: 3, status: "offline", idVal: "0x03", saved: false,
+    uid: 3,
+    idVal: "0x03",
+    status: "waiting",
     pins: [
-      { key: "frequency", label: "Frequency", unit: "MHz", value: "868" },
-      { key: "baudRate",  label: "Baud rate", unit: "bps", value: "9600" },
-      { key: "txPower",   label: "TX power",  unit: "dBm", value: "10" },
+      { key: "pressure", label: "Pressure", unit: "hPa", value: "0.0", type: "FLOAT" },
+      { key: "humidity", label: "Humidity", unit: "%", value: "0", type: "UNSIGNED_SHORT" },
+      { key: "mission_name", label: "Mission Name", unit: "", value: "", type: "STRING(10)" },
     ],
   },
 ]);
+
+
+export const handleAdd = (nextId) => {
+    return nextId++;
+  };

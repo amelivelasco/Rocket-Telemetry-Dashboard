@@ -1,10 +1,10 @@
 import asyncio
 from asyncio.log import logger
 from datetime import datetime
-import random
-
 from channels.generic.websocket import AsyncWebsocketConsumer
 from telemetry.schemas.packetSchema import decode_packet
+from ..simulators.sharedState import latest_packets
+
 import json
 
 class TelemetryConsumer(AsyncWebsocketConsumer):
@@ -25,12 +25,17 @@ class TelemetryConsumer(AsyncWebsocketConsumer):
             
     async def send_telemetry_data(self):
         try:
+            raw_packet = latest_packets.get("0x01")
+            if raw_packet is None:
+                return  # wait until RadioConsumer has generated one            
+             
+            decoded = decode_packet("0x01", raw_packet)
             await self.send(json.dumps({
                 "timeLabel": datetime.now().strftime("%H:%M:%S"),
-                "altitude": round(random.uniform(0, 3000), 2),
-                "velocity": round(random.uniform(0, 400), 2),
-                "temperature": random.randint(-30, 80),
-                "battery_voltage": round(random.uniform(11, 14), 2),
+                "altitude": round(decoded["altitude"]["value"], 2),
+                "velocity": round(decoded["velocity"]["value"], 2),
+                "temperature": round(decoded["temperature"]["value"], 2),
+                "battery_voltage": round(decoded["battery_voltage"]["value"], 2),
             }))
         except Exception as e:
             logger.error(f"Error sending telemetry: {e}")
