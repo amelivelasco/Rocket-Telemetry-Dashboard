@@ -44,7 +44,9 @@ function Dashboard() {
   return (
     <div className="main-container">
       <div className="App">
-        <h1>Rocket Telemetry Dashboard</h1>
+        <h1>Dashboard</h1>
+        <p style={{color:"gray", fontSize:"12px"}}>telemetry points: {telemetryData.length}</p>
+        <TelemetrySummaryCards latest={latest} />
         <div style={{ marginTop: "2rem" }}>
           <h2>Radio Board 1 (live) - first 4 pins</h2>
           {radioPinTimeseries.map((series, idx) => (

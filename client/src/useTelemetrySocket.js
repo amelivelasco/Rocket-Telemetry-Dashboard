@@ -17,10 +17,14 @@ export default function useTelemetrySocket(url) {
     };
 
     socket.onmessage = (event) => {
-      console.log("Message from server:", event.data);
-      const point = JSON.parse(event.data);
-      setData((prev) => [...prev.slice(-49), point]);
-    };
+      if (closed) return;
+      try {
+          const point = JSON.parse(event.data);
+          setData((prev) => [...prev.slice(-49), point]);
+        } catch (e) {
+          console.error("Failed to parse message:", e);
+        }
+      };
 
     socket.onclose = (event) => {
       if (closed) return;

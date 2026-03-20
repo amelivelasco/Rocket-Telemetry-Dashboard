@@ -1,3 +1,8 @@
+import asyncio
+from asyncio.log import logger
+from datetime import datetime
+import random
+
 from channels.generic.websocket import AsyncWebsocketConsumer
 from telemetry.schemas.packetSchema import decode_packet
 import json
@@ -7,26 +12,25 @@ class TelemetryConsumer(AsyncWebsocketConsumer):
         print("CONNECT METHOD REACHED")
         await self.accept()
         print("WebSocket connected")
+        self.sending_task = asyncio.create_task(self.periodic_send())
 
     async def disconnect(self, close_code):
         print("WebSocket disconnected")
-
-    async def receive(self, bytes_data=None, text_data=None):
-        if bytes_data:
-            # binary path (real radio hardware)
-            radio_id = f"0x{bytes_data[0]:02x}"
-            payload = bytes_data[1:]
-            decoded = decode_packet(radio_id, payload)
+        self.sending_task.cancel()
+    
+    async def periodic_send(self):
+        while True:
+            await self.send_telemetry_data()
+            await asyncio.sleep(1)
+            
+    async def send_telemetry_data(self):
+        try:
             await self.send(json.dumps({
-                "type": "telemetry",
-                "data": decoded
+                "timeLabel": datetime.now().strftime("%H:%M:%S"),
+                "altitude": round(random.uniform(0, 3000), 2),
+                "velocity": round(random.uniform(0, 400), 2),
+                "temperature": random.randint(-30, 80),
+                "battery_voltage": round(random.uniform(11, 14), 2),
             }))
-
-        elif text_data:
-            # JSON path (frontend simulator / dashboard)
-            data = json.loads(text_data)
-            await self.send(json.dumps({
-                "type": "telemetry",
-                "last_updated": data.get("timeLabel"),
-                "received": data
-            }))
+        except Exception as e:
+            logger.error(f"Error sending telemetry: {e}")
