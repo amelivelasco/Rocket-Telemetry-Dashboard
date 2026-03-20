@@ -4,13 +4,17 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
 } from "recharts";
-import CustomTooltip from "../customTooltip/customTooltip";
 import "./telemetryChart.css";
+import { useState } from "react";
+import { handleClick } from "./telemetryUtils";
+import { displayData } from "./telemetryUtils";
 
 function TelemetryChart({ data, title, dataKey }) {
   const yAxisWidth = 60;
+  const [pinnedPoint, setPinnedPoint] = useState(null); // store the actual data point, not index
+  const onChartClick = (chartData) => handleClick(chartData, setPinnedPoint);
+  const chartData = displayData(pinnedPoint, data, dataKey);
 
   return (
     <div className="chart-container">
@@ -21,24 +25,20 @@ function TelemetryChart({ data, title, dataKey }) {
           width={900}
           height={300}
           data={data}
+          onClick={onChartClick}
           margin={{ top: 5, right: yAxisWidth, left: 0, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#666" />
           <XAxis dataKey="timeLabel" stroke="#fff" />
           <YAxis stroke="#fff" width={yAxisWidth} />
-          <Tooltip
-            content={<CustomTooltip title={title} dataKey={dataKey} />}
-            cursor={data && data.length > 0 ? { stroke: "#fff", strokeWidth: 1 } : false}
-          />
           <Area
             type="monotone"
             dataKey={dataKey}
             stroke="#8884d8"
             fill="#8884d8"
             fillOpacity={0.25}
-            dot={{ r: 4, fill: "#8884d8", stroke: "#fff", strokeWidth: 1 }}
-            activeDot={{ r: 6, fill: "#fff", stroke: "#8884d8", strokeWidth: 2 }}
-          />
+            connectNulls={false}
+            />   
         </AreaChart>
       </div>
     </div>

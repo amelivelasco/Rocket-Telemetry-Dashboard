@@ -85,7 +85,7 @@ class RadioConsumer(AsyncWebsocketConsumer):
         """Send data immediately and then periodically."""
         await self.send_radio_data()  # Send immediately
         while True:
-            await asyncio.sleep(2)
+            await asyncio.sleep(1)
             await self.send_radio_data()
 
     def get_type_from_format(self, fields, field_name):
